@@ -31,6 +31,8 @@ MANTA:
 	@echo start MANTA $(SAMPLE_ID) at `date`
 	#rm -rf $(OUTDIR) && mkdir -p $(OUTDIR) && $(PYTHON2) $(MANTA) --referenceFasta $(REF) --bam $(BAM) --runDir $(OUTDIR) && $(PYTHON2) $(OUTDIR)/runWorkflow.py -m local -j $(THREAD)
 	#gunzip -c $(OUTDIR)/results/variants/diploidSV.vcf.gz > $(OUTDIR)/$(SAMPLE_ID).diploidSV.vcf
-	#export ANNOTSV2=$(dir $(ANNOTSV2.3))/../ && export ANNOTSV=$(dir $(ANNOTSV2.3))/../ && $(ANNOTSV2.3) -SVinputFile $(OUTDIR)/$(SAMPLE_ID).diploidSV.vcf -outputFile $(OUTDIR)/$(SAMPLE_ID).SV.tsv  -genomeBuild GRCh37 -bedtools $(BEDTOOLS) -outputDir $(OUTDIR)/
+	$(PYTHON2) $(dir $(MANTA))/convertInversion.py $(SAMTOOLS) $(REF) $(OUTDIR)/results/variants/diploidSV.vcf.gz > $(OUTDIR)/$(SAMPLE_ID).manta.vcf
+	export ANNOTSV2=$(dir $(ANNOTSV2.3))/../ && export ANNOTSV=$(dir $(ANNOTSV2.3))/../ && $(ANNOTSV2.3) -SVinputFile $(OUTDIR)/$(SAMPLE_ID).manta.vcf -outputFile $(OUTDIR)/$(SAMPLE_ID).SV.tsv  -genomeBuild GRCh37 -bedtools $(BEDTOOLS) -outputDir $(OUTDIR)/
 	$(PYTHON) $(BIN)/wgs_annotsv.py -i $(OUTDIR)/$(SAMPLE_ID).SV.tsv -o $(OUTDIR)/$(SAMPLE_ID) -s $(SAMPLE_ID)
+	$(PYTHON) $(BIN)/result.py -i $(OUTDIR)/$(SAMPLE_ID).SV.tsv -o $(OUTDIR)/$(SAMPLE_ID).result.xls -s $(SAMPLE_ID)
 	@echo finish MANTA $(SAMPLE_ID) at `date`

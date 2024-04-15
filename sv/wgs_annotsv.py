@@ -54,7 +54,7 @@ def main():
 	dt_csv = dt[extract_key]
 	dt_csv.to_csv(csv_out,index=0,header=1,sep='\t')
 	#
-	dt['SV length'] = dt['SV length'].replace('-','')
+	dt['SV length'] = dt['SV length'].str.replace('-','')
 	dt = dt[dt['AnnotSV type']=='full']
 	dt['SV length'] =dt['SV length'].abs()
 	dt['SV length'] = dt['SV length'].fillna(1)

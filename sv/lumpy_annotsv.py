@@ -48,7 +48,7 @@ def main():
 	final_out = output+'.final.annotation.txt'
 	#
 	dt = pd.read_csv(input,sep='\t',low_memory=False)
-	dt['GT:FT:GQ:PL:PR:SR'.split(':')] = dt[sample].str.split(':', expand=True)
+	dt[dt.loc[1,'FORMAT'].split(':')] = dt[sample].str.split(':', expand=True)
 	dt['Sample_ID'] = sample
 	extract_key = ["AnnotSV ID","SV chrom","SV start","SV end","SV length","SV type","AnnotSV type","Gene name","NM","CDS length","tx length","location","intersectStart","intersectEnd","DGV_GAIN_IDs","DGV_GAIN_n_samples_with_SV","DGV_GAIN_n_samples_tested","DGV_GAIN_Frequency","DGV_LOSS_IDs","DGV_LOSS_n_samples_with_SV","DGV_LOSS_n_samples_tested","DGV_LOSS_Frequency","GD_ID","GD_AN","GD_N_HET","GD_N_HOMALT","GD_AF","GD_POPMAX_AF","GD_ID_others","DDD_SV","DDD_DUP_n_samples_with_SV","DDD_DUP_Frequency","DDD_DEL_n_samples_with_SV","DDD_DEL_Frequency","1000g_event","1000g_AF","1000g_max_AF","IMH_ID","IMH_AF","IMH_ID_others","promoters","dbVar_event","dbVar_variant","dbVar_status","TADcoordinates","ENCODEexperiments","GCcontent_left","GCcontent_right","Repeats_coord_left","Repeats_type_left","Repeats_coord_right","Repeats_type_right","ACMG","HI_CGscore","TriS_CGscore","DDD_status","DDD_mode","DDD_consequence","DDD_disease","DDD_pmids","HI_DDDpercent","synZ_ExAC","misZ_ExAC","pLI_ExAC","delZ_ExAC","dupZ_ExAC","cnvZ_ExAC","morbidGenes","morbidGenesCandidates","Mim Number","Phenotypes","Inheritance","AnnotSV ranking"]
 	dt_csv = dt[extract_key]
@@ -66,7 +66,7 @@ def main():
 	'SV start':'start',
 	'SV end':'end',
 	'Gene name':'gene',
-	'PR':'Spanning_paired-read',
+	'PE':'Spanning_paired-read',
 	'SR':'Split_reads'}, inplace=True)
 	for nc in nan_column:
 		dt[nc] = '-'
@@ -74,8 +74,8 @@ def main():
 	extract_key = ["chromosome","start","end","length(Mb)","gene","log2","Spanning_paired-read","Split_reads","depth","weight","decipher","DGV","clinvar","Pred",sample]
 	dt = dt[extract_key]
 	dt.to_csv(txt_out,index=0,header=1,sep='\t')
-	dt_final = dt[dt['length(Mb)']>1]
-	dt_final.to_csv(final_out,index=0,header=1,sep='\t')
+	#dt_final = dt[dt['length(Mb)']>1]
+	dt.to_csv(final_out,index=0,header=1,sep='\t')
 
 
 if __name__ == '__main__':

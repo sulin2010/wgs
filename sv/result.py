@@ -89,7 +89,8 @@ def GeneTran(input_file):
 			header = lines
 			continue
 		info_dic= dict(zip(header,lines))
-		if info_dic['AnnotSV type'] == 'full':continue
+		if 'AnnotSV type' in info_dic and info_dic['AnnotSV type'] == 'full':continue
+		if 'AnnotSV_type' in info_dic and info_dic['AnnotSV_type'] == 'full':continue
 		gene_dic[info_dic['Gene name']] = info_dic['NM']
 	filein.close()
 	return(gene_dic)

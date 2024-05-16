@@ -1,1 +1,1 @@
-/home/sulin/miniconda3/share/lumpy-sv-0.3.1-3/scripts/pairend_distro.py
+/home/sulin/miniconda3/share/lumpy-sv-0.2.14a-2/scripts/pairend_distro.py

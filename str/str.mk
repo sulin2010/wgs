@@ -8,7 +8,7 @@ name=$(notdir $(firstword $(MAKEFILE_LIST)))
 script=$(BIN)/script/
 CONFIG=$(BIN)/../../config.txt
 include $(CONFIG)
-THREAD=6
+THREAD=8
 READ_LENGTH=100
 Usage:
 	@echo  Usage: "call sv (dedup sort BAM)"
@@ -28,3 +28,7 @@ GANGSTR:
 	grep '#' $(OUTDIR)/split_gangstr/$(SAMPLE_ID).gangstr.1.vcf > $(OUTDIR)/$(SAMPLE_ID).gangstr.vcf
 	cat $(OUTDIR)/split_gangstr/*.vcf | grep -v '#' >> $(OUTDIR)/$(SAMPLE_ID).gangstr.vcf
 	$(PYTHON) $(BIN)/script/gangstr_result.py -i $(OUTDIR)/$(SAMPLE_ID).gangstr.vcf -b $(dir $(HIPSTR_STR_BED))/merge.bed -o $(OUTDIR)/$(SAMPLE_ID).gangstr.xls -s $(SAMPLE_ID)
+
+COMPARE:
+	for i in hipstr gangstr ;do cut -f 2,3 $(OUTDIR)/$(SAMPLE_ID).$$i.xls | sed '1d' | sort | uniq | sed 's/\t/-/g'> $(OUTDIR)/$$i.txt ;done
+	/home/sulin/python3/bin/perl /data/sulin/work/git/bin/List2Venn.pl -i $(OUTDIR)/hipstr.txt $(OUTDIR)/gangstr.txt -o $(OUTDIR)/$(SAMPLE_ID).compare.pdf

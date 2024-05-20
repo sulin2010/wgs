@@ -71,7 +71,7 @@ def main():
 	bedin.close()
 	vcfin = open(vcf)
 	fileout = open(output,'w')
-	fileout.write('sample\tchrom\tstart\tend\tmotif_length\tHipSTRID\tmotif\tgene_name\tgene_detail\tref_repeat_number\tallele1_repeat_number\tallele2_repeat_number\tDepth\tref\talt\n')
+	fileout.write('sample\tchrom\tstart\tend\tmotif_length\tID\tmotif\tgene_name\tgene_detail\tref_repeat_number\tallele1_repeat_number\tallele2_repeat_number\tDepth\tref\talt\tGT\n')
 	for line in vcfin :
 		if line.startswith('##'):continue
 		lines = line.rstrip('\n').split('\t')
@@ -91,20 +91,33 @@ def main():
 		motif_len = float(info_dic['PERIOD'])
 		str_id = line_dic['ID']
 		dep = info_dic['DP']
+		format_key = line_dic['FORMAT'].split(':')
+		format_value = line_dic[sample_id].split(':')
+		format_dic = dict(zip(format_key,format_value))
+		filter_flag = format_dic['FILTER']
+		gt = format_dic['GT']
+		ref_len = str(round(len(ref)/motif_len,2)) 
 		#
-		result = [sample_id,chrom,start_pos ,end_pos,motif_len,str_id] + bed_dic[str_id] +[str(round(len(ref)/motif_len,2)) ]
+		if gt == '0|0':continue
+		if filter_flag != 'PASS':continue
+		result = [sample_id,chrom,start_pos ,end_pos,motif_len,str_id] + bed_dic[str_id] +[ref_len]
 		if alt == '.':
 			result = result +['0','0']
 		else:
-			ac = info_dic['AC']
-			if ',' in ac:
-				for alt_split in alt.split(','):
-					result.append(str(round(len(alt_split)/motif_len,2)))
+			#ac = info_dic['AC']
+			alt_len_list = [ str(round(len(alt_split)/motif_len,2)) for alt_split in alt.split(',')]
+			if gt == '0|1':
+				result = result + [ref_len,alt_len_list[0]]
+			elif gt == '1|0':
+				result = result+[alt_len_list[0],ref_len]
+			elif gt == '1|1':
+				result = result+[alt_len_list[0],alt_len_list[0]]
+			elif '2' in gt:
+				result = result+alt_len_list
 			else:
-				result.append(str(round(len(alt)/motif_len,2)))
-				result.append('0')
-			
-		result = result + [dep,ref,alt] 
+				print(result,alt_len_list,gt)
+		
+		result = result + [dep,ref,alt] +[gt]
 		result_line = '\t'.join(map(str,result))+'\n'
 		fileout.write(result_line)
 

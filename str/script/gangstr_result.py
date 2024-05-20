@@ -67,7 +67,7 @@ def main():
 	bedin.close()
 	vcfin = open(vcf)
 	fileout = open(output,'w')
-	fileout.write('sample\tchrom\tstart\tend\tmotif_length\tID\tmotif\tgene_name\tgene_detail\tref_repeat_number\tallele1_repeat_number\tallele2_repeat_number\tDepth\tref\talt\n')
+	fileout.write('sample\tchrom\tstart\tend\tmotif_length\tID\tmotif\tgene_name\tgene_detail\tref_repeat_number\tallele1_repeat_number\tallele2_repeat_number\tDepth\tref\talt\tGT\n')
 	result_dic = {}
 	for line in vcfin :
 		if line.startswith('##'):continue
@@ -85,22 +85,25 @@ def main():
 		alt = line_dic['ALT'].upper()
 		start_pos = line_dic['POS']
 		end_pos = info_dic['END']
-		motif_len = float(info_dic['PERIOD'])
 		motif=info_dic['RU'].upper()
+		if '/' not in motif:
+			motif_len = float(info_dic['PERIOD'])
+		else:
+			motif_len = max([ len(i) for i in motif.split('/')])
 		format_key=line_dic['FORMAT'].split(':')
 		format_value = line_dic[sample_id].split(':')
 		if line_dic[sample_id] == '.':continue
 		format_dic = dict(zip(format_key,format_value))
 		#print(format_dic)
 		a1_len ,a2_len = format_dic['REPCN'].split(',')
-		ref_len = str(round(len(ref)/motif_len,2))
+		ref_len = str(float(info_dic['REF']))
 		b_key = ','.join([chrom,start_pos,motif])
 		str_id,a_gene,a_gene_info = bed_dic[b_key]
 		dep = format_dic['DP']
 		qua = float(format_dic['Q'])
 		gt = format_dic['GT']
-		if gt == '0/0':continue
-		gt = '\''+gt
+		gt = gt.replace('/','|')
+		if gt == '0|0':continue
 		#
 		result_key = ','.join([chrom,start_pos])
 		result = [sample_id,chrom,start_pos ,end_pos,motif_len,str_id,motif,a_gene,a_gene_info,ref_len,a1_len,a2_len,dep,ref,alt,gt,qua]
